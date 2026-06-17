@@ -1,5 +1,7 @@
+import os
 import requests
 import pandas as pd
+import numpy as np
 
 LAT = 18.0735
 LON = -15.9582
@@ -15,6 +17,14 @@ url = (
     "&format=JSON"
 )
 
+def estimate_ndvi(df):
+    """Estime un NDVI basé sur la température, l'humidité et la pluie."""
+    temp_norm = np.clip((35.0 - df['T2M']) / 35.0, 0.0, 1.0)
+    humidity_norm = np.clip(df['RH2M'] / 100.0, 0.0, 1.0)
+    rain_norm = np.clip(df['PRECTOTCORR'] / (df['PRECTOTCORR'].max() + 1e-6), 0.0, 1.0)
+    ndvi = 0.35 * humidity_norm + 0.30 * temp_norm + 0.35 * rain_norm
+    return np.clip(ndvi, 0.0, 1.0)
+
 data = requests.get(url).json()["properties"]["parameter"]
 
 df = pd.DataFrame(data)
@@ -27,19 +37,14 @@ df = df.reset_index().rename(columns={
     "PS": "Pressure (KPa)"
 })
 
+# Calcul du NDVI estimé pour le tableau de bord
+ndvi_df = df.rename(columns={
+    'Air temperature (C)': 'T2M',
+    'Air humidity (%)': 'RH2M',
+    'rainfall': 'PRECTOTCORR'
+})
+df['NDVI'] = estimate_ndvi(ndvi_df)
+
+os.makedirs("data", exist_ok=True)
 df.to_csv("data/nasa_recent_data.csv", index=False)
-print("Données NASA sauvegardées")
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+print("✅ Données NASA sauvegardées dans data/nasa_recent_data.csv")

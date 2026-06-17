@@ -4,7 +4,7 @@ DATA_DIR = "data"
 RAW_DATA_PATH = os.path.join(DATA_DIR, "iotsensordata.csv")
 SCALER_PATH = os.path.join(DATA_DIR, "scaler.pkl")
 
-NUM_FEATURES = 7 
+NUM_FEATURES = 8 
 
 # Fenêtre temporelle augmentée pour mieux capturer les patterns
 TIME_STEPS = 20  
