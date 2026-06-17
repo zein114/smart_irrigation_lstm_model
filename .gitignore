@@ -1,0 +1,10 @@
+venv/
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.swp
+*.swo
+training_curves.png
+data/nasa_recent_data.csv
+data/scaler.pkl
